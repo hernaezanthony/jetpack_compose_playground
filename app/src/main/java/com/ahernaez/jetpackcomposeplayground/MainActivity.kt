@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Checkbox
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -14,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ahernaez.jetpackcomposeplayground.models.Todo
 import com.ahernaez.jetpackcomposeplayground.ui.theme.JetpackComposePlaygroundTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,23 +29,50 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting(name = "world")
+
+                    val todoList = arrayListOf(
+                        Todo("Learn Jetpack Compose", false),
+                        Todo("Learn Swift", true),
+                        Todo("Learn dependency injection", false)
+                    )
+
+                    TodoList(todoItems = todoList)
                 }
             }
         }
     }
 }
 
+
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+fun TodoList(todoItems : ArrayList<Todo>){
+    
+    LazyColumn{
+        items(todoItems){ todo ->
+            TodoCard(todo = todo.name, isChecked = todo.isDone)
+        }
+    }
+    
 }
 
+@Composable
+fun TodoCard(todo: String, isChecked: Boolean){
+
+    Row(modifier = Modifier.padding(all = 8.dp)){
+        val checkedState = remember { mutableStateOf(isChecked) }
+        Checkbox(checked = checkedState.value, onCheckedChange = {checkedState.value = it})
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(text = todo)
+    }
+
+}
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     JetpackComposePlaygroundTheme {
-        Greeting("Android")
+        TodoCard(todo = "Learn Jetpack Compose", isChecked = false)
     }
 }
