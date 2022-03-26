@@ -20,8 +20,12 @@ import com.ahernaez.jetpackcomposeplayground.models.Todo
 import com.ahernaez.jetpackcomposeplayground.ui.theme.JetpackComposePlaygroundTheme
 
 class MainActivity : ComponentActivity() {
+
+    val todoList =  mutableStateListOf<Todo>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setUpData()
         setContent {
             JetpackComposePlaygroundTheme {
                 // A surface container using the 'background' color from the theme
@@ -43,9 +47,19 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+    private fun setUpData(){
+
+        todoList.addAll(
+            arrayListOf(
+                Todo("Learn Jetpack Compose", false),
+                Todo("Learn Swift", true),
+                Todo("Learn dependency injection", false)
+            )
+        )
+    }
 
 @Composable
-fun TodoList(todoItems : ArrayList<Todo>){
+fun TodoList(todoItems : MutableList<Todo>){
     
     LazyColumn{
         items(todoItems){ todo ->
