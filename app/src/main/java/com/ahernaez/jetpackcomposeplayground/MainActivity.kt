@@ -6,14 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Checkbox
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ahernaez.jetpackcomposeplayground.models.Todo
@@ -22,10 +23,14 @@ import com.ahernaez.jetpackcomposeplayground.ui.theme.JetpackComposePlaygroundTh
 class MainActivity : ComponentActivity() {
 
     val todoList =  mutableStateListOf<Todo>()
+    private lateinit var onAddBtnClickListener: OnAddBtnClickListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setUpData()
+        setUpListeners()
+
         setContent {
             JetpackComposePlaygroundTheme {
                 // A surface container using the 'background' color from the theme
@@ -33,19 +38,14 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-
-                    val todoList = arrayListOf(
-                        Todo("Learn Jetpack Compose", false),
-                        Todo("Learn Swift", true),
-                        Todo("Learn dependency injection", false)
-                    )
-
-                    TodoList(todoItems = todoList)
+                    Column() {
+                        TodoInput(onAddBtnClickListener)
+                        TodoList(todoItems = todoList)
+                    }
                 }
             }
         }
     }
-}
 
     private fun setUpData(){
 
@@ -57,6 +57,30 @@ class MainActivity : ComponentActivity() {
             )
         )
     }
+
+    private fun addData(input: String){
+
+        val newTodo = Todo(input, false)
+        todoList.add(newTodo)
+    }
+
+    private fun setUpListeners(){
+
+        setOnAddBtnClickListener(object : OnAddBtnClickListener{
+            override fun onAddBtnClicked(input: String) {
+                addData(input)
+            }
+        })
+    }
+
+    private fun setOnAddBtnClickListener(onAddBtnClickListener: OnAddBtnClickListener){
+        this.onAddBtnClickListener = onAddBtnClickListener
+    }
+
+    interface OnAddBtnClickListener{
+        fun onAddBtnClicked(input: String)
+    }
+}
 
 @Composable
 fun TodoList(todoItems : MutableList<Todo>){
@@ -83,10 +107,34 @@ fun TodoCard(todo: String, isChecked: Boolean){
 
 }
 
+@Composable
+fun TodoInput(onAddBtnClickListener: MainActivity.OnAddBtnClickListener){
+
+    Row(modifier = Modifier.padding(all = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically){
+
+        val textState = remember { mutableStateOf(TextFieldValue())}
+        TextField(
+            value = textState.value,
+            onValueChange = {textState.value = it}
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Button(onClick = {
+            onAddBtnClickListener.onAddBtnClicked(textState.value.text)
+
+        }) {
+            Text(text = "Add")
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     JetpackComposePlaygroundTheme {
-        TodoCard(todo = "Learn Jetpack Compose", isChecked = false)
+
     }
 }
